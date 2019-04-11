@@ -9,6 +9,7 @@ class CalculatorController
         // props
         this._locale = 'pt-BR';
         this._currentDate;
+        this._operation = [];
 
         // methods
         this.init();
@@ -80,7 +81,9 @@ class CalculatorController
         // adiciona eventos para cada botão
         buttons.forEach((button, index) => {
             this.addEventListenerAll(button, 'click drag', event => {
-                console.log(button.className.baseVal.replace("btn-", ""), index);
+                let textBtn = button.className.baseVal.replace("btn-", "");
+
+                this.execBtn(textBtn);
             });
 
             this.addEventListenerAll(button, 'mouseover mouseup mousedown', event => {
@@ -100,6 +103,147 @@ class CalculatorController
         events.split(' ').forEach(event => {
             element.addEventListener(event, fn, false);
         });
-    }    
+    } 
 
+    /**
+     * Trata as ações de cada botão.
+     * 
+     * @param {String} value Valor do botão.
+     */
+    execBtn(value) {
+        switch (value) {
+            case 'ac':
+                this.clearAll();
+                break;
+        
+            case 'ce':
+                this.clearEntry();
+                break;
+
+            case 'soma':
+                this.addOperation('+');
+                break;
+
+            case 'subtracao':
+                this.addOperation('-');
+                break;
+
+            case 'multiplicacao':
+                this.addOperation('*');
+                break;
+                
+            case 'divisao':
+                this.addOperation('/');
+                break;
+
+            case 'porcento':
+            this.addOperation('%');
+                break;
+
+            case 'igual':
+                break;
+
+            case 'ponto':
+                this.addOperation('.');
+                break;
+
+            // Nota: Como é o mesmo método para todos os números, coloca-se o break apenas no final
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                this.addOperation(parseInt(value));
+                break;
+
+            default:
+                this.setError();
+                break;
+        }
+    }
+
+    /**
+     * Limpa os dados da memória.
+     */
+    clearAll() {
+        this._operation = [];
+    }
+
+    /**
+     * Cancela a última entrada de dados.
+     */
+    clearEntry() {
+        this._operation.pop();
+    }
+
+    /**
+     * Adiciona uma operação ao atributo operation.
+     * Caso seja um número, este valor é concatenado até que uma próxima operação não seja um número
+     * e então adiciona o número concatenado convertido ao atributo operation.
+     * 
+     * @param {*} value Operação.
+     */
+    addOperation(value) {
+        console.log('A', isNaN(this.getLastOperation()));
+        
+        if (isNaN(this.getLastOperation())) {
+            // neste caso é string
+            if(this.isOperator(value)) {
+                // troca o operador caso o valor anterior digitado também seja um operador.
+                this.setLastOperation(value);
+            } else if(isNaN(value)) {
+                // o valor passado não é um número.
+                console.log(value);
+            } else {
+                // então é um número.
+                this._operation.push(value);
+            }
+        } else {
+            // neste caso é número
+            // é necessário converter ambos os valores para strings para que possam ser concatenados
+            let newValue = this.getLastOperation().toString() + value.toString();
+            this.setLastOperation(parseInt(newValue));
+        }
+        console.log(this._operation);
+    }
+
+    /**
+     * Retorna o último valor de operation.
+     * 
+     * @return {*} Valor.
+     */
+    getLastOperation() {
+        return this._operation[this._operation.length - 1];
+    }
+
+    /**
+     * Troca o útimo valor do operation pelo valor passado.
+     * 
+     * @param {*} value 
+     */
+    setLastOperation(value) {
+        this._operation[this._operation.length - 1] = value;
+    }
+
+    /**
+     * Verifica se o valor é um operador.
+     * 
+     * @param {String} value Valor.
+     * @return {boolean} O valor passado é um operador?
+     */
+    isOperator(value) {
+        return (['+', '-', '*', '/', '%'].indexOf(value) > -1);
+    }
+
+    /**
+     * Mostra a palavra Error no display.
+     */
+    setError() {
+        this.displayCalc = "Error";
+    }
 }
