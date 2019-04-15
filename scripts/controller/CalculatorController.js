@@ -188,28 +188,81 @@ class CalculatorController
      * 
      * @param {*} value Operação.
      */
-    addOperation(value) {
-        console.log('A', isNaN(this.getLastOperation()));
-        
-        if (isNaN(this.getLastOperation())) {
-            // neste caso é string
+    addOperation(value) {        
+        if (isNaN(this.getLastOperation())) { // neste caso é string
             if(this.isOperator(value)) {
                 // troca o operador caso o valor anterior digitado também seja um operador.
                 this.setLastOperation(value);
             } else if(isNaN(value)) {
                 // o valor passado não é um número.
-                console.log(value);
+                console.log('Outra coisa', value);
             } else {
                 // então é um número.
-                this._operation.push(value);
+                this.pushOperation(value);
+
+                // atualiza o display
+                this.setLastNumberToDisplay();
             }
-        } else {
-            // neste caso é número
-            // é necessário converter ambos os valores para strings para que possam ser concatenados
-            let newValue = this.getLastOperation().toString() + value.toString();
-            this.setLastOperation(parseInt(newValue));
+        } else { // neste caso é número
+            if(this.isOperator(value)) {
+                this.pushOperation(value);
+            } else {
+                // é necessário converter ambos os valores para strings para que possam ser concatenados
+                let newValue = this.getLastOperation().toString() + value.toString();
+                this.setLastOperation(parseInt(newValue));
+
+                // atualiza o display
+                this.setLastNumberToDisplay();
+            }
         }
-        console.log(this._operation);
+    }
+
+    /**
+     * Faz o push da operação vigente.
+     * Verifica se há mais de 3 elementos.
+     * 
+     * @param {*} value Operação.
+     */
+    pushOperation(value) {
+        this._operation.push(value);
+
+        if (this._operation.length > 3) {
+            this.calc();
+        }
+    }
+
+    /**
+     * Executa o cálculo.
+     * Chama o método de atualizar no display.
+     */
+    calc() {
+        // retira o último elemento inserido
+        let last = this._operation.pop();
+
+        // "junta" os índices do array para fazer o cálculo com o eval
+        let result = eval(this._operation.join(""));
+
+        this._operation = [result, last];
+
+        // atualiza o display
+        this.setLastNumberToDisplay();
+    }
+
+    /**
+     * Procura pelo último número digitado no array e mostra o no display.
+     * Ignora o que não é número.
+     */
+    setLastNumberToDisplay() {
+        let lastNumber;
+
+        for (let i = this._operation.length - 1; i >= 0; i--) {
+            if (!this.isOperator(this._operation[i])) {
+                lastNumber = this._operation[i];
+                break;
+            }
+        }
+
+        this.displayCalc = lastNumber;
     }
 
     /**
