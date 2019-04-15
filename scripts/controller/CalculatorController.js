@@ -23,6 +23,8 @@ class CalculatorController
         setInterval(()=>{
             this.setDisplayDateTime();
         }, 1000);
+
+        this.setLastNumberToDisplay();
     }
 
     /* Getters e Setters - inicio */
@@ -172,6 +174,7 @@ class CalculatorController
      */
     clearAll() {
         this._operation = [];
+        this.setLastNumberToDisplay();
     }
 
     /**
@@ -179,6 +182,7 @@ class CalculatorController
      */
     clearEntry() {
         this._operation.pop();
+        this.setLastNumberToDisplay();
     }
 
     /**
@@ -200,7 +204,6 @@ class CalculatorController
                 // então é um número.
                 this.pushOperation(value);
 
-                // atualiza o display
                 this.setLastNumberToDisplay();
             }
         } else { // neste caso é número
@@ -211,7 +214,6 @@ class CalculatorController
                 let newValue = this.getLastOperation().toString() + value.toString();
                 this.setLastOperation(parseInt(newValue));
 
-                // atualiza o display
                 this.setLastNumberToDisplay();
             }
         }
@@ -242,15 +244,25 @@ class CalculatorController
         // "junta" os índices do array para fazer o cálculo com o eval
         let result = eval(this._operation.join(""));
 
-        this._operation = [result, last];
+        // calculando porcentagem
 
-        // atualiza o display
+        if (last == '%') {
+            result /= 100;
+
+            // nesta caso não é necessário salvar o '%', pois já foi usado na operação
+            this._operation = [result];
+        } else {
+            // salva o resultado
+            this._operation = [result, last];
+        }
+
         this.setLastNumberToDisplay();
     }
 
     /**
      * Procura pelo último número digitado no array e mostra o no display.
      * Ignora o que não é número.
+     * Caso o valor seja vazio, coloca 0 (zero) no display.
      */
     setLastNumberToDisplay() {
         let lastNumber;
@@ -261,6 +273,8 @@ class CalculatorController
                 break;
             }
         }
+
+        if (!lastNumber) lastNumber = 0;
 
         this.displayCalc = lastNumber;
     }
