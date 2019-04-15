@@ -9,7 +9,10 @@ class CalculatorController
         // props
         this._locale = 'pt-BR';
         this._currentDate;
+
         this._operation = [];
+        this._lastOperator = '';
+        this._lastNumber = '';
 
         // methods
         this.init();
@@ -237,17 +240,53 @@ class CalculatorController
     /**
      * Executa o cálculo.
      * Chama o método de atualizar no display.
+     * 
+     * Nota 1: em uma conta do tipo "2 + 5 +" e for pressionado o botão "=", a calculadora deve 
+     * armazenar o último sinal de operação (no caso, o "+") e fazer o próximo
+     * calculo levndo em consideração o último operador. Neste caso, faz o cálculo adicionando "5", 
+     * o resultado deve ser 13 -> 18 -> 23 e etc.
+     * 
+     * Nota 2: em uma conta do tipo "2 - 5 + 3" e for pressionado o botão "=", a calculadora deve 
+     * armazenar a última operação realizada (no caso, "5 + 3"). Neste caso, faz o cálculo adicionando o "3",
+     * o resultado deve ser 6 -> 9 -> 12 e etc.
      */
     calc() {
         
         let last = '';
 
-        if (this._operation.length > 3) {
-            last = this._operation.pop();
+        this._lastOperator = this.getLastItem();
+
+        /**
+         * Menos de 3 elementos em _operation:
+         * - guarda o primeiro item
+         * - _operation guarda o primeiro item guardado + o último operador digitado + o último número digitado
+         */
+        if (this._operation.length < 3) {
+            let firstItem = this._operation[0];
+
+            this._operation = [firstItem, this._lastOperator, this._lastNumber];
         }
 
-        // "junta" os índices do array para fazer o cálculo com o eval
-        let result = eval(this._operation.join(""));
+        /**
+         * Mais de 3 elementos em _operation:
+         * - retira o último elemento
+         * - guarda o resultado em _lastNumber 
+         */
+        if (this._operation.length > 3) {
+            last = this._operation.pop();
+            
+            this._lastNumber = this.getResult();
+        } 
+        /**
+         * São 3 elementos:
+         * - o último item é um número
+         * - guarda o resultado em _lastNumber
+         */
+        else if (this._operation.length == 3) {
+            this._lastNumber = this.getLastItem(false);
+        }
+        
+        let result = this.getResult();
 
         // calculando porcentagem
 
@@ -272,18 +311,48 @@ class CalculatorController
      * Caso o valor seja vazio, coloca 0 (zero) no display.
      */
     setLastNumberToDisplay() {
-        let lastNumber;
-
-        for (let i = this._operation.length - 1; i >= 0; i--) {
-            if (!this.isOperator(this._operation[i])) {
-                lastNumber = this._operation[i];
-                break;
-            }
-        }
+        let lastNumber = this.getLastItem(false);
 
         if (!lastNumber) lastNumber = 0;
 
         this.displayCalc = lastNumber;
+    }
+
+    /**
+     * Traz o último item digitado.
+     * 
+     * @param {bool} isOperator default : true
+     * 
+     * @return Último item.
+     */
+    getLastItem(isOperator = true) {
+        let lastItem;
+
+        // percorre _operation do último ao primeiro, para encontrar o lastItem.
+        for (let i = this._operation.length - 1; i >= 0; i--) {
+            if (this.isOperator(this._operation[i]) == isOperator) {
+                lastItem = this._operation[i];
+                break;
+            }
+        }
+
+        // se o último elemento for um operador, mantém.
+        if (!lastItem) {
+            lastItem = (isOperator) ? this._lastOperator : this._lastNumber;
+        }
+
+        return lastItem;
+    }
+
+    /**
+     * "Junta" os índices do array e pega o conteúdo para fazer o cálculo utilizando o
+     * método padrão "eval()".
+     * Retorna o eval da operação.
+     * 
+     * @return {eval} Eval da Operação
+     */
+    getResult() {
+        return eval(this._operation.join(""));
     }
 
     /**
