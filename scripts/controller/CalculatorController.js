@@ -143,6 +143,7 @@ class CalculatorController
                 break;
 
             case 'igual':
+                this.calc();
                 break;
 
             case 'ponto':
@@ -238,8 +239,12 @@ class CalculatorController
      * Chama o método de atualizar no display.
      */
     calc() {
-        // retira o último elemento inserido
-        let last = this._operation.pop();
+        
+        let last = '';
+
+        if (this._operation.length > 3) {
+            last = this._operation.pop();
+        }
 
         // "junta" os índices do array para fazer o cálculo com o eval
         let result = eval(this._operation.join(""));
@@ -253,7 +258,9 @@ class CalculatorController
             this._operation = [result];
         } else {
             // salva o resultado
-            this._operation = [result, last];
+            this._operation = [result];
+
+            if (last) this._operation.push(last);
         }
 
         this.setLastNumberToDisplay();
