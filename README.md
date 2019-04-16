@@ -15,6 +15,10 @@ Idéias interessantes aprendidas nas aulas:
 - Pegando elementos do dom com querySelector e querySelectorAll.
 - Utilização e customização da classe Date e dos métodos toLocale.
 - Tratamento de múltiplos eventos em um elemento.
+- Avaliando expressões com eval().
+- Usando funções de Clipboard via javascript.
+- Utilizando evento de duplo click.
+- Evento com áudio.
 
 ### Projeto
 ![Calculadora](https://firebasestorage.googleapis.com/v0/b/hcode-com-br.appspot.com/o/calculadora-hcode.jpg?alt=media&token=5406aa3f-b965-401c-9b4e-654609c78b33)

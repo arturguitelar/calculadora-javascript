@@ -14,6 +14,9 @@ class CalculatorController
         this._lastOperator = '';
         this._lastNumber = '';
 
+        this._audioOnOff = false;
+        this._audio = new Audio('click.mp3');
+
         // methods
         this.init();
         this.initButtonEvents();
@@ -33,6 +36,14 @@ class CalculatorController
 
         this.setLastNumberToDisplay();
         this.pasteFromClipboard();
+
+        // adiciona evento de duplo click no botão para 
+        // ligar e desligar o áudio
+        document.querySelectorAll('.btn-ac').forEach(btn => {
+            btn.addEventListener('dblclick', e => {
+                this.toggleAudio();
+            });
+        });
     }
 
     
@@ -61,6 +72,8 @@ class CalculatorController
      */
     initKeyboard() {
         document.addEventListener('keyup', e => {
+            this.playAudio();
+
             switch (e.key) {
                 case 'Escape':
                     this.clearAll();
@@ -179,6 +192,8 @@ class CalculatorController
      * @param {String} value Valor do botão.
      */
     execBtn(value) {
+        this.playAudio();
+
         switch (value) {
             case 'ac':
                 this.clearAll();
@@ -509,5 +524,23 @@ class CalculatorController
             this.displayCalc = parseFloat(text);
             
         });
+    }
+
+    /**
+     * Liga ou desliga o áudio dos botões.
+     */
+    toggleAudio() {
+        this._audioOnOff = !this._audioOnOff;
+    }
+
+    /**
+     * Toca o som dos botões.
+     */
+    playAudio() {
+        if (this._audioOnOff) {
+            // previne que o áudio toque inteiro caso as teclas sejam pressionadas muito rapidamente
+            this._audio.currentTime = 0;
+            this._audio.play();
+        }
     }
 }
