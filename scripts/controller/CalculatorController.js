@@ -17,8 +17,12 @@ class CalculatorController
         // methods
         this.init();
         this.initButtonEvents();
+        this.initKeyboard();
     }
 
+    /**
+     * Inicia o display da calculadora.
+     */
     init() {       
         // seta e atualiza data e hora da calculadora
         this.setDisplayDateTime();
@@ -28,6 +32,79 @@ class CalculatorController
         }, 1000);
 
         this.setLastNumberToDisplay();
+    }
+
+    
+    /**
+     * Inicia Eventos nos botões.
+     */
+    initButtonEvents() {
+        let buttons = document.querySelectorAll('#buttons > g, #parts > g');
+
+        // adiciona eventos para cada botão
+        buttons.forEach((button, index) => {
+            this.addEventListenerAll(button, 'click drag', event => {
+                let textBtn = button.className.baseVal.replace("btn-", "");
+
+                this.execBtn(textBtn);
+            });
+
+            this.addEventListenerAll(button, 'mouseover mouseup mousedown', event => {
+                button.style.cursor = 'pointer';
+            });
+        });        
+    }
+
+    /**
+     * Inicia Eventos de teclado.
+     */
+    initKeyboard() {
+        document.addEventListener('keyup', e => {
+            switch (e.key) {
+                case 'Escape':
+                    this.clearAll();
+                    break;
+            
+                case 'Backspace':
+                    this.clearEntry();
+                    break;
+    
+                // O valor da tecla é o mesmo valor de e.key, utiliza-se a mesma forma de operação.
+                case '+':
+                case '-':
+                case '*':
+                case '/':
+                case '%':
+                    this.addOperation(e.key);
+                    break;
+    
+                // Pode ser usada a tecla 'Enter' ou a tecla '=' para a mesma ação.
+                case 'Enter':
+                case '=':
+                    this.calc();
+                    break;
+    
+                // Pode ser usada a tecla '.' ou a tecla ',' para a mesma ação.                
+                case '.':
+                case ',':
+                    this.addDot();
+                    break;
+    
+                // É o mesmo método para todos os números.
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    this.addOperation(parseInt(e.key));
+                    break;
+            }
+        });
     }
 
     /* Getters e Setters - inicio */
@@ -75,26 +152,6 @@ class CalculatorController
             year: 'numeric'
         });
         this.displayTime = this.currentDate.toLocaleTimeString(this._locale);
-    }
-
-    /**
-     * Inicia Eventos nos botões.
-     */
-    initButtonEvents() {
-        let buttons = document.querySelectorAll('#buttons > g, #parts > g');
-
-        // adiciona eventos para cada botão
-        buttons.forEach((button, index) => {
-            this.addEventListenerAll(button, 'click drag', event => {
-                let textBtn = button.className.baseVal.replace("btn-", "");
-
-                this.execBtn(textBtn);
-            });
-
-            this.addEventListenerAll(button, 'mouseover mouseup mousedown', event => {
-                button.style.cursor = 'pointer';
-            });
-        });        
     }
 
     /**
@@ -153,7 +210,7 @@ class CalculatorController
                 this.addDot();
                 break;
 
-            // Nota: Como é o mesmo método para todos os números, coloca-se o break apenas no final
+            // É o mesmo método para todos os números.
             case '0':
             case '1':
             case '2':
