@@ -32,6 +32,7 @@ class CalculatorController
         }, 1000);
 
         this.setLastNumberToDisplay();
+        this.pasteFromClipboard();
     }
 
     
@@ -103,6 +104,11 @@ class CalculatorController
                 case '9':
                     this.addOperation(parseInt(e.key));
                     break;
+
+                case 'c':
+                    // Verifica se o C foi apertado em conjunto com o Ctrl
+                    if(e.ctrlKey) this.copyToClipboard();
+                    break; 
             }
         });
     }
@@ -469,5 +475,39 @@ class CalculatorController
      */
     setError() {
         this.displayCalc = "Error";
+    }
+
+    /**
+     * Copia o conteúdo do display para a área de transferência.
+     */
+    copyToClipboard() {
+        // Cria-se um input porquê os elementos da calculadora estão em svg
+        // e é preciso ter como selecionar o conteúdo para copiar.
+        let input = document.createElement('input');
+
+        input.value = this.displayCalc;
+
+        document.body.appendChild(input);
+
+        // Seleciona o conteúdo do input.
+        input.select();
+
+        // Copia para o Clipboard do sistema operacional.
+        document.execCommand("Copy");
+
+        // Remove o input para que não fique na tela.
+        input.remove();
+    }
+
+    /**
+     * Transfere um conteúdo que esteja no Clipboard do S.O. para o display.
+     */
+    pasteFromClipboard() {
+        document.addEventListener('paste', e => {
+            let text = e.clipboardData.getData('Text');
+
+            this.displayCalc = parseFloat(text);
+            
+        });
     }
 }
