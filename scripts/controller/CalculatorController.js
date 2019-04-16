@@ -460,7 +460,14 @@ class CalculatorController
      * @return {eval} Eval da Operação
      */
     getResult() {
-        return eval(this._operation.join(""));
+        try {
+            return eval(this._operation.join(""));
+        } catch (e) {
+            // SetTimeout para que dê tempo de mostrar a mensagem de erro na tela
+            setTimeout(() => {
+                this.setError();
+            }, 1);
+        }
     }
 
     /**
