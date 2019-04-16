@@ -132,6 +132,12 @@ class CalculatorController
     }
 
     set displayCalc(value) {
+
+        // o número máximo de dígitos na tela deve ser 10
+        if (value.toString().length > 10) {
+            this.setError();
+            return false;
+        }
         this._displayCalcEl.innerHTML = value;
     }
 
