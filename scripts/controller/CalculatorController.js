@@ -150,7 +150,7 @@ class CalculatorController
                 break;
 
             case 'ponto':
-                this.addOperation('.');
+                this.addDot();
                 break;
 
             // Nota: Como é o mesmo método para todos os números, coloca-se o break apenas no final
@@ -178,6 +178,9 @@ class CalculatorController
      */
     clearAll() {
         this._operation = [];
+        this._lastNumber = '';
+        this._lastOperator = '';
+        
         this.setLastNumberToDisplay();
     }
 
@@ -201,9 +204,6 @@ class CalculatorController
             if(this.isOperator(value)) {
                 // troca o operador caso o valor anterior digitado também seja um operador.
                 this.setLastOperation(value);
-            } else if(isNaN(value)) {
-                // o valor passado não é um número.
-                console.log('Outra coisa', value);
             } else {
                 // então é um número.
                 this.pushOperation(value);
@@ -216,11 +216,31 @@ class CalculatorController
             } else {
                 // é necessário converter ambos os valores para strings para que possam ser concatenados
                 let newValue = this.getLastOperation().toString() + value.toString();
-                this.setLastOperation(parseInt(newValue));
+                this.setLastOperation(parseFloat(newValue));
 
                 this.setLastNumberToDisplay();
             }
         }
+    }
+
+    /**
+     * Trata a questão do ponto para contas com números decimais.
+     * 
+     * Caso pressionado ponto com o display zerado, deve apresentar: "0.".
+     * Caso a última operação for um operador, deve manter este operador e adicionar um "0.".
+     * Caso já haja um número, é preciso criar uma string com este número + ponto e sobreescrever 
+     * a mesma posição no array. Ex: "2.3".
+     */
+    addDot() {
+        let lastOperation = this.getLastOperation();
+
+        if (this.isOperator(lastOperation) || !lastOperation) {
+            this.pushOperation("0.");
+        } else {
+            this.setLastOperation(lastOperation.toString() + ".");
+        }
+
+        this.setLastNumberToDisplay();
     }
 
     /**
@@ -285,7 +305,7 @@ class CalculatorController
         else if (this._operation.length == 3) {
             this._lastNumber = this.getLastItem(false);
         }
-        
+
         let result = this.getResult();
 
         // calculando porcentagem
