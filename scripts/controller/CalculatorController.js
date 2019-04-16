@@ -216,7 +216,7 @@ class CalculatorController
             } else {
                 // é necessário converter ambos os valores para strings para que possam ser concatenados
                 let newValue = this.getLastOperation().toString() + value.toString();
-                this.setLastOperation(parseFloat(newValue));
+                this.setLastOperation(newValue);
 
                 this.setLastNumberToDisplay();
             }
@@ -230,9 +230,13 @@ class CalculatorController
      * Caso a última operação for um operador, deve manter este operador e adicionar um "0.".
      * Caso já haja um número, é preciso criar uma string com este número + ponto e sobreescrever 
      * a mesma posição no array. Ex: "2.3".
+     * 
      */
     addDot() {
         let lastOperation = this.getLastOperation();
+
+        // Trata se a operação possui mais de um ponto.
+        if (typeof lastOperation === 'string' && lastOperation.split('').indexOf('.') > -1) return;
 
         if (this.isOperator(lastOperation) || !lastOperation) {
             this.pushOperation("0.");
